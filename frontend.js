@@ -84,7 +84,7 @@ $w.onReady(async function () {
     authentication.onLogin(async () => {
         isLoggedIn = true
     });
-    addMessageToChat("gpt", "Hi! How can i be of service?");
+    // addMessageToChat("gpt", "Hi! How can i be of service?");
 
     $w("#buttonSendMessage").disable()
     $w("#inputUserText").onInput(() => {
@@ -115,6 +115,26 @@ $w.onReady(async function () {
             processMessage(userMessage);
         }
     });
+
+    // $w('#buttonCareer ').onClick(() => {
+    //     const userMessage = "Can you guide me through a career transition by offering advice, identifying transferable skills, and providing resources for success."
+    //     processMessage(userMessage)
+    //     $w("#shortcut").collapse();
+    //     $w("#htmlComponent").show();
+    // })
+    // $w('#buttonPromotion').onClick(() => {
+    //     const userMessage = "Can you help me prepare for a promotion by offering tips on showcasing your achievements and improving your skills."
+    //     processMessage(userMessage)
+    //     $w("#shortcut").collapse();
+    //     $w("#htmlComponent").show();
+    // })
+    // $w('#boxInsight').onClick(() => {
+    //     const userMessage = "Can you provide insights on industry trends, in-demand skills, and career growth opportunities to help you make decisions."
+    //     processMessage(userMessage)
+    //     $w("#shortcut").collapse();
+    //     $w("#htmlComponent").show();
+    // })
+
 });
 
 async function processMessage(userMessage) {

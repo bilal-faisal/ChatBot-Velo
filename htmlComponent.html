@@ -13,6 +13,8 @@
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
+
+            /* Ensure background is white */
         }
 
         #chatWindow {
@@ -30,6 +32,8 @@
             flex: 1;
             padding: 10px;
             overflow-y: auto;
+            /* Enable vertical scroll */
+
             min-height: 300px;
             max-height: 300px;
         }
@@ -39,23 +43,32 @@
             padding: 10px;
             border-radius: 10px;
             max-width: 80%;
+            /* Ensure message boxes are 80% width */
             word-wrap: break-word;
             color: black;
+            /* Text color should be black */
             font-size: 14px;
+            /* Set a reasonable font size */
         }
 
         .user-message {
             background-color: #d4f1f4;
+            /* Light blue for user */
             align-self: flex-end;
+            /* Position user message on right */
             text-align: right;
             margin-left: auto;
+            /* Push user message to the right */
         }
 
         .assistant-message {
             background-color: #f0f8ff;
+            /* Light grey for assistant */
             align-self: flex-start;
+            /* Position assistant message on left */
             text-align: left;
             margin-right: auto;
+            /* Push assistant message to the left */
         }
     </style>
 </head>
@@ -110,13 +123,12 @@
             updateChatUI(chat);  // Update the chat window with the new messages
         });
 
-        // // Testing
-        // updateChatUI([
-        //     { 'sender': 'user', 'content': "ABC" },
-        //     { 'sender': 'gpt', 'content': "XYZ" },
-        //     { 'sender': 'user', 'content': "ABC" },
-        //     { 'sender': 'gpt', 'content': "XYZ" },
-        // ])
+        updateChatUI([
+            { 'sender': 'user', 'content': "ABC" },
+            { 'sender': 'gpt', 'content': "XYZ" },
+            { 'sender': 'user', 'content': "ABC" },
+            { 'sender': 'gpt', 'content': "XYZ" },
+        ])
 
     </script>
 </body>
