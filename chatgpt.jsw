@@ -1,33 +1,73 @@
-import { fetch } from 'wix-fetch';
+import OpenAI from "openai";
 import { secrets } from 'wix-secrets-backend';
 
-export async function sendMessageToChatGPT(conversationHistory) {
-    const apiKey = await secrets.get('openai_api_key');
-    const apiUrl = 'https://api.openai.com/v1/chat/completions';
+const assistantId = await secrets.get('assistant_key');
 
+const openai = new OpenAI({
+    apiKey: await secrets.get('openai_api_key');,
+});
+
+export async function createThread() {
     try {
-        const response = await fetch(apiUrl, {
-            method: 'post',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                model: 'gpt-3.5-turbo',
-                messages: conversationHistory, // Sending the full conversation history
-                max_tokens: 100,
-                temperature: 0.7
-            })
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            return data.choices[0].message.content; // Returning the response from ChatGPT
-        } else {
-            throw new Error('Failed to fetch ChatGPT response');
-        }
+        const thread = await openai.beta.threads.create();
+        return thread;
     } catch (error) {
-        console.error("Error calling ChatGPT API:", error);
-        throw new Error("Unable to process your request at the moment.");
+        console.error("Error creating thread:", error);
+        throw error;
+    }
+}
+
+export async function addUserMessageToThread(threadId, userMessage) {
+    try {
+        const message = await openai.beta.threads.messages.create(
+            threadId, {
+                role: "user",
+                content: userMessage
+            }
+        );
+        return message
+    } catch (error) {
+        console.error("Error in addUserMessageToThread:", error);
+        throw error;
+    }
+}
+
+export async function runModel(threadId) {
+    try {
+        let run = await openai.beta.threads.runs.createAndPoll(
+            threadId, {
+                assistant_id: assistantId,
+            }
+        );
+
+        if (run.status === 'completed') {
+            const messages = await openai.beta.threads.messages.list(run.thread_id);
+
+            if (messages && messages.data.length > 0) {
+                return {
+                    success: true,
+                    response: messages.data[0].content[0].text.value
+                };
+            } else {
+                return {
+                    success: false,
+                    error: 'No messages found in the thread.'
+                };
+            }
+
+        } else {
+            return {
+                success: false,
+                error: `Run status: ${run.status}`
+            };
+        }
+
+    } catch (error) {
+        console.error("Error in runModel:", error);
+
+        return {
+            success: false,
+            error: `An unexpected error occurred: ${error.message}`
+        };
     }
 }

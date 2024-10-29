@@ -13,8 +13,7 @@
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
-
-            /* Ensure background is white */
+            background-color: #efefef;
         }
 
         #chatWindow {
@@ -22,53 +21,116 @@
             height: 100%;
             display: flex;
             flex-direction: column;
-
-
             overflow: hidden;
-
+            background-color: #efefef;
+            border-radius: 10px;
         }
 
         #chatMessages {
             flex: 1;
             padding: 10px;
             overflow-y: auto;
-            /* Enable vertical scroll */
+            min-height: 200px;
+            /* max-height: 300px; */
+        }
 
-            min-height: 300px;
-            max-height: 300px;
+        /* 
+        @media only screen and (max-width: 1000px) {
+            #chatMessages {
+                min-height: 350px;
+                max-height: 400px;
+            }
+        }
+
+        @media only screen and (max-width: 700px) {
+            #chatMessages {
+                min-height: 400px;
+                max-height: 500px;
+            }
+        }
+
+        @media only screen and (max-width: 500px) {
+            #chatMessages {
+                min-height: 500px;
+                max-height: 600px;
+            }
+        } */
+
+        .message-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
         }
 
         .message {
             margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 10px;
-            max-width: 80%;
-            /* Ensure message boxes are 80% width */
+            padding: 12px 16px;
+            border-radius: 15px;
+            max-width: 75%;
             word-wrap: break-word;
-            color: black;
-            /* Text color should be black */
-            font-size: 14px;
-            /* Set a reasonable font size */
+            font-size: 15px;
+            color: #333;
         }
 
         .user-message {
-            background-color: #d4f1f4;
-            /* Light blue for user */
+            background-color: #dbdbdb;
             align-self: flex-end;
-            /* Position user message on right */
             text-align: right;
             margin-left: auto;
-            /* Push user message to the right */
         }
 
         .assistant-message {
-            background-color: #f0f8ff;
-            /* Light grey for assistant */
+            background-color: #ffffff;
             align-self: flex-start;
-            /* Position assistant message on left */
             text-align: left;
             margin-right: auto;
-            /* Push assistant message to the left */
+        }
+
+        .user-profile {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-left: 10px;
+            margin-bottom: 6px;
+        }
+
+        .assistant-profile {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            margin-bottom: 6px;
+        }
+
+        #chatMessages {
+            overflow-y: scroll;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        #chatMessages::-webkit-scrollbar {
+            display: none;
+        }
+
+        html {
+            overflow-y: scroll;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        html::-webkit-scrollbar {
+            display: none;
+        }
+
+
+        button {
+            background-color: #000;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -79,58 +141,127 @@
     </div>
 
     <script>
-        // Function to update the chat messages and scroll to the bottom
+
+        const relatedLinks = {
+            'https://www.tezhly.com/careerquiz': 'career assessment',
+            'https://www.tezhly.com/blank-5-1': 'marketplace',
+            'https://www.tezhly.com/resume': 'resume',
+            'https://www.tezhly.com/book-online': 'mock interview',
+            'https://www.tezhly.com/blank-5': 'career planning',
+            'https://www.tezhly.com/plans-pricing': 'create account',
+        }
+
+        function toTitleCase(str) {
+            return str
+                .toLowerCase()
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+        }
+
         function updateChatUI(chat) {
             const chatMessagesDiv = document.getElementById("chatMessages");
-            chatMessagesDiv.innerHTML = '';  // Clear previous messages
+            chatMessagesDiv.innerHTML = ''; // Clear previous messages
 
-            chat.forEach(msg => {
+            chat.forEach((msg, i) => {
+                const messageContainer = document.createElement("div");
+                messageContainer.classList.add("message-container");
+
                 const messageDiv = document.createElement("div");
                 messageDiv.classList.add("message");
 
-                // Add specific class for user or assistant message
                 if (msg.sender === "user") {
-                    messageDiv.classList.add("user-message");  // User message on right
+                    messageDiv.classList.add("user-message");
+                    const userProfile = document.createElement("img");
+                    userProfile.src = "https://static.wixstatic.com/media/1a0716_efa32b291cd9434db0331f096a1f8ab3~mv2.png";
+                    userProfile.classList.add("user-profile");
+                    messageContainer.appendChild(messageDiv);
+                    messageContainer.appendChild(userProfile);
+
+                    messageDiv.innerText = msg.content;
                 } else {
-                    messageDiv.classList.add("assistant-message");  // Assistant message on left
+                    messageDiv.classList.add("assistant-message");
+                    const assistantProfile = document.createElement("img");
+                    assistantProfile.src = "https://static.wixstatic.com/media/1a0716_404666b552fa4268978d62e550140161~mv2.webp";
+                    assistantProfile.classList.add("assistant-profile");
+                    messageContainer.appendChild(assistantProfile);
+                    messageContainer.appendChild(messageDiv);
+
+
+                    let temp = msg.content;
+
+                    for (const keyword in relatedLinks) {
+                        temp = temp.replace(keyword, "")
+                    }
+
+                    temp = temp.replace(/(\d+\.)/g, '<br/>$1');
+
+                    messageDiv.innerHTML = temp
+
+                    for (const keyword in relatedLinks) {
+                        if (msg.content.toLowerCase().includes(keyword)) {
+                            const linkButton = document.createElement("button");
+                            linkButton.onclick = () => window.open(keyword, "_blank");
+
+                            linkButton.innerText = `${toTitleCase(relatedLinks[keyword])}`;
+                            messageDiv.innerHTML += `<br/>`;
+
+                            messageDiv.appendChild(linkButton);
+                        }
+                    }
+
+                }
+                chatMessagesDiv.appendChild(messageContainer);
+
+                if (i === chat.length - 1 && msg.sender == "user") {
+
+
+                    const messageContainer = document.createElement("div");
+                    messageContainer.classList.add("message-container");
+
+                    const messageDiv = document.createElement("div");
+
+                    // messageDiv.classList.add("message");
+                    // messageDiv.classList.add("assistant-message");
+
+                    const assistantProfile = document.createElement("img");
+                    assistantProfile.src = "https://static.wixstatic.com/media/1a0716_404666b552fa4268978d62e550140161~mv2.webp";
+                    assistantProfile.classList.add("assistant-profile");
+                    messageContainer.appendChild(assistantProfile);
+                    messageContainer.appendChild(messageDiv);
+
+
+                    messageDiv.innerHTML = `<img src="https://static.wixstatic.com/media/1a0716_fcf892af22b048609880c5e0635f7537~mv2.gif" width="100px" height="48px" style="object-fit:cover"></img>`
+
+
+                    chatMessagesDiv.appendChild(messageContainer);
                 }
 
-                // Set the message content
-                messageDiv.innerText = msg.content;
-
-                // Append the message to the chat window
-                chatMessagesDiv.appendChild(messageDiv);
             });
-            setTimeout(() => {
-                // Scroll to the bottom of the chat window
-                scrollToBottom();
 
-            }, 500)
+            setTimeout(() => {
+                scrollToBottom();
+            }, 0);
         }
 
-        // Scroll function to ensure the chat is always at the bottom
         function scrollToBottom() {
             const chatMessagesDiv = document.getElementById("chatMessages");
-            chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;  // Scroll to the bottom
+            chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
         }
 
-        // Expose the updateChatUI function for Velo to call
         window.updateChatUI = updateChatUI;
 
-        // Listen for messages from Velo
         window.addEventListener("message", function (event) {
             const chat = event.data;
-            updateChatUI(chat);  // Update the chat window with the new messages
+            updateChatUI(chat);
         });
-
-        updateChatUI([
-            { 'sender': 'user', 'content': "ABC" },
-            { 'sender': 'gpt', 'content': "XYZ" },
-            { 'sender': 'user', 'content': "ABC" },
-            { 'sender': 'gpt', 'content': "XYZ" },
-        ])
-
+        // updateChatUI([
+        //     { 'sender': 'gpt', 'content': "You're welcome! Feel free marketplace to resume ask anything else. link: https://www.tezhly.com/blank-5" },
+        //     { 'sender': 'user', 'content': "Hello! How can I improve my UX skills?" },
+        //     { 'sender': 'gpt', 'content': "Hello! 1.How 2.can 3.I improve my UX skills?" },
+        // ]);
     </script>
+
 </body>
 
 </html>
